@@ -23,13 +23,12 @@
 				</el-table-column>
 				<el-table-column prop="age" label="年龄" width="100" sortable>
 				</el-table-column>
-				<el-table-column prop="birth" label="生日" width="120" sortable>
+				<el-table-column prop="telephone" label="联系方式" width="120" sortable>
 				</el-table-column>
 				<el-table-column prop="addr" label="地址" min-width="180" sortable>
 				</el-table-column>
 			</el-table>
 		</template>
-
 	</section>
 </template>
 <script>
@@ -59,7 +58,8 @@
 				this.loading = true;
 				//NProgress.start();
 				getUserList(para).then((res) => {
-					this.users = res.data.users;
+				    console.log(res);
+					this.users = res.data.data.rows;
 					this.loading = false;
 					//NProgress.done();
 				});

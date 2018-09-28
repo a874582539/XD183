@@ -7,6 +7,10 @@
     <el-form-item prop="checkPass">
       <el-input type="password" v-model="ruleForm2.checkPass" auto-complete="off" placeholder="密码"></el-input>
     </el-form-item>
+    <el-form-item>
+      <el-input type="text" v-model="ruleForm2.verification" auto-complete="off" placeholder="验证码"></el-input>
+      <img src="http://www.toncentsoft.cn:8090/login/authCode" >
+    </el-form-item>
     <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox>
     <el-form-item style="width:100%;">
       <el-button type="primary" style="width:100%;" @click.native.prevent="handleSubmit2" :loading="logining">登录</el-button>
@@ -17,14 +21,17 @@
 
 <script>
   import { requestLogin } from '../api/api';
-  //import NProgress from 'nprogress'
+  import qs from 'qs';
+  //import NProgress from 'nprogress';
+  // import axios from 'axios';
   export default {
     data() {
       return {
         logining: false,
         ruleForm2: {
           account: 'admin',
-          checkPass: '123456'
+          checkPass: '123456',
+          verification: ''
         },
         rules2: {
           account: [
@@ -34,7 +41,10 @@
           checkPass: [
             { required: true, message: '请输入密码', trigger: 'blur' },
             //{ validator: validaePass2 }
-          ]
+          ],
+            verification: [
+                { required: true, message: "请输入验证码",trigger: 'blur'}
+            ],
         },
         checked: true
       };
@@ -50,19 +60,31 @@
             //_this.$router.replace('/table');
             this.logining = true;
             //NProgress.start();
-            var loginParams = { username: this.ruleForm2.account, password: this.ruleForm2.checkPass };
-            requestLogin(loginParams).then(data => {
+            var loginParams = {
+                username: this.ruleForm2.account,
+                password: this.ruleForm2.checkPass,
+                verification: this.ruleForm2.verification,
+            };
+            requestLogin(qs.stringify(loginParams)).then(data => {
               this.logining = false;
               //NProgress.done();
-              let { msg, code, user } = data;
-              if (code !== 200) {
+              let { errorMsg, success} = data;
+              if (success == false) {
                 this.$message({
-                  message: msg,
+                  message: errorMsg,
                   type: 'error'
                 });
               } else {
-                sessionStorage.setItem('user', JSON.stringify(user));
-                this.$router.push({ path: '/table' });
+                  this.$message({
+                      message: data.data,
+                      type: 'success'
+                  });
+                  let user = {
+                      name: loginParams.username,
+                      avatar: 'https://raw.githubusercontent.com/taylorchen709/markdown-images/master/vueadmin/user.png'
+                  };
+                  sessionStorage.setItem('user', JSON.stringify(user));
+                  setTimeout(()=>_this.$router.push({ path: '/table' }),0) ;
               }
             });
           } else {

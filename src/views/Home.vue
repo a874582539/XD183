@@ -5,13 +5,15 @@
 				{{collapsed?'':sysName}}
 			</el-col>
 			<el-col :span="10">
-				<div class="tools" @click.prevent="collapse">
-					<i class="fa fa-align-justify"></i>
-				</div>
+				<!--<div class="tools" @click.prevent="collapse">-->
+					<!--<i class="fa fa-align-justify"></i>-->
+				<!--</div>-->
 			</el-col>
 			<el-col :span="4" class="userinfo">
 				<el-dropdown trigger="hover">
-					<span class="el-dropdown-link userinfo-inner"><img :src="this.sysUserAvatar" /> {{sysUserName}}</span>
+					<span class="el-dropdown-link userinfo-inner">
+						<img :src="this.sysUserAvatar" /> {{sysUserName}}
+					</span>
 					<el-dropdown-menu slot="dropdown">
 						<el-dropdown-item>我的消息</el-dropdown-item>
 						<el-dropdown-item>设置</el-dropdown-item>
@@ -75,7 +77,7 @@
 	export default {
 		data() {
 			return {
-				sysName:'VUEADMIN',
+				sysName:'后台管理系统',
 				collapsed:false,
 				sysUserName: '',
 				sysUserAvatar: '',
@@ -93,7 +95,7 @@
 		},
 		methods: {
 			onSubmit() {
-				console.log('submit!');
+				// console.log('submit!');
 			},
 			handleopen() {
 				//console.log('handleopen');
