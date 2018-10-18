@@ -3,7 +3,7 @@ axios.defaults.withCredentials=true;
 let base = '';
 // let api= 'http://192.168.191.1:8085';
 // let api= 'http://www.toncentsoft.cn:8090';
-let api= 'http://10.200.20.27:8085';
+let api= 'http://10.200.10.117:8085';
 
 export const requestLogin = params => {
     return axios.post(

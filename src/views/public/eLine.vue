@@ -2,14 +2,14 @@
     <div class="mpp-all">
         <div class="mp-title">{{ title }}</div>
         <div class="eLine">
-            <div id="chartLine" style="height: 23rem;background-color: #010916"></div>
+            <div id="chartLine"  style="height: 23rem;background-color: #010916"></div>
         </div>
     </div>
 </template>
 
 <script>
     import echarts from 'echarts';
-    import { getBDLine } from "../../api/api";
+    
     export default {
         name: "eline",
         data(){
@@ -18,12 +18,43 @@
                 drawLines: null,
                 data:[],
                 timeChecked: [],
+                waiting:[],
+                reservation:[],
+                handleSuccess:[],
+                 interval: -1,                
             }
+        },
+        created(){
+            this.getBDLine()
+           this.drawLine()
+        },
+        watch:{
+            reservation:{
+                handler(newValue, oldValue){
+                   this.getBDLine()
+                    this.drawLine()
+　　　      　}
+            },
+             waiting:{
+                handler(newValue, oldValue){
+                   this.getBDLine()
+                    this.drawLine()
+　　　      　}
+            },
+             handleSuccess:{
+                handler(newValue, oldValue){
+                   this.getBDLine()
+                    this.drawLine()
+　　　      　}
+            },
+
         },
         methods:{
             getTime(){
                 // 获取当前时间的方法
                 let time = new Date();
+                
+              
                 let seperator1= '-';
                 let seperator2= ':';
                 let month = time.getMonth() +1;
@@ -34,15 +65,95 @@
                 if(strDate>=0 && strDate<=9){
                     strDate = '0'+ strDate;
                 }
-                let currentdate = time.getFullYear() + seperator1 + month + seperator1 + strDate + " "+ time.getHours() + seperator2 + time.getMinutes()+ seperator2 + time.getSeconds();
-
+                let currentdate = time.getFullYear() + seperator1 + month + seperator1 + strDate + " "+ time.getHours() + seperator2 + time.getMinutes() + seperator2 + time.getSeconds();
+                     
                 return currentdate;
+                console.log(currentdate);
+                
+            },
+            //获取当前5分钟之前的时间
+             getNowFormatDate() {
+                    var date = new Date();
+                    var seperator1 = "-";
+                    var seperator2 = ":";
+                    //前5分钟时间
+                    var minutes=parseInt("5");  
+
+                    var  interTimes=minutes*60*1000;
+
+                    var interTimes=parseInt(interTimes);  
+                    date=new   Date(Date.parse(date)-interTimes);
+                    
+                    var month = date.getMonth() + 1;
+                    var strDate = date.getDate();
+                    var hour = date.getHours();
+                    var minutes = date.getMinutes();
+                    if (month >= 1 && month <= 9) {
+                        month = "0" + month;
+                    }
+                    if (strDate >= 0 && strDate <= 9) {
+                        strDate = "0" + strDate;
+                    }
+                    if (hour >= 0 && hour <= 9) {
+                            hour = "0" + hour;
+                    }
+                    if (minutes >= 0 && minutes <= 9) {
+                            minutes = "0" + minutes;
+                    }
+                    var currentdatefix = date.getFullYear() + seperator1 + month + seperator1 + strDate
+                            + " " + hour + seperator2 + minutes
+                            + seperator2 + date.getSeconds();
+                            console.log(currentdatefix);
+                            
+                    return currentdatefix;
+           
+                  
             },
             getBDLine(){
-                getBDLine().then(res=>{
-
-                })
-            },
+            
+              this.interval= setInterval(()=>{
+                     const url =`todayHumanFlow/2018-10-12 10:20:45/2018-10-12 10:26:50`
+                     this.$axios.get(url).then(res=>{
+                       
+                        
+                       this.reservation.push(res.data.data.reservation)
+                       this.waiting.push(res.data.data.waiting)
+                       this.handleSuccess.push(res.data.handleSuccess)
+                         
+                            this.drawLines.setOption({
+                                 series: [
+                          {
+                            name: '预约人数',
+                            type: 'line',
+                            xAxisIndex: 1,
+                            smooth: true,
+                            data:this.reservation
+                          },
+                          {
+                             name: '已受理人数',
+                            type: 'line',
+                            smooth: true,
+                            data: this.handleSuccess
+                                
+                            
+                         },
+                         {
+                            name: '排队人数',
+                            type: 'line',
+                            smooth: true,
+                            data: this.waiting
+                            
+                            
+                        }
+                    ]
+                            })
+                       
+                    })    
+                },1000000)
+                
+                
+                
+             },
             drawLine() {
                 this.drawLines= echarts.init(document.getElementById('chartLine'));
                 this.drawLines.setOption({
@@ -159,46 +270,49 @@
                             }
                         }
                     ],
-                    series: [
-                        {
-                            name: '预约人数',
-                            type: 'line',
-                            xAxisIndex: 1,
-                            smooth: true,
-                            data: [
-                                691, 223, 200, 150, 130, 150, 110, 100, 88, 60,
-                                691, 223, 200, 150, 130, 150, 110, 100, 88, 60,
-                                691, 223, 200, 150, 130, 150, 110, 100, 88, 60,
-                                691, 223, 200, 150, 130, 150, 110, 100, 88, 60,
-                                691, 223, 200, 150, 130, 150, 110, 100, 88, 60,
-                            ]
-                        },
-                        {
-                            name: '已受理人数',
-                            type: 'line',
-                            smooth: true,
-                            data: [0, 33, 44.21, 49, 66, 89, 131, 156, 186, 200]
-                        },
-                        {
-                            name: '排队人数',
-                            type: 'line',
-                            smooth: true,
-                            data: [11, 41, 11, 18, 23, 12, 23.6, 26, 25, 18]
-                        }
-                    ]
+                    // series: [
+                    //     {
+                    //         name: '预约人数',
+                    //         type: 'line',
+                    //         xAxisIndex: 1,
+                    //         smooth: true,
+                    //         data:this.reservation
+                    //     },
+                    //     {
+                    //         name: '已受理人数',
+                    //         type: 'line',
+                    //         smooth: true,
+                    //         data: [
+                                
+                    //         ]
+                    //     },
+                    //     {
+                    //         name: '排队人数',
+                    //         type: 'line',
+                    //         smooth: true,
+                    //         data: [
+                            
+                    //         ]
+                    //     }
+                    // ]
                 });
-            },
+            
+               
+            },    
             drawCharts(){
                 this.drawLine()
             }
         },
         mounted(){
             this.drawCharts();
-            this.getTime();
+            
         },
         updated(){
             this.drawCharts();
-        }
+        },
+        beforeDestroy() {
+        clearInterval(this.interval)
+         },
     }
 </script>
 
