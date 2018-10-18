@@ -2,19 +2,15 @@ import Login from './views/Login.vue'
 import NotFound from './views/404.vue'
 import Home from './views/Home.vue'
 import Main from './views/Main.vue'
+import Data from './views/DB.vue'
 import Table from './views/nav1/Table.vue'
 import Form from './views/nav1/Form.vue'
 import user from './views/nav1/user.vue'
 import userControl from './views/nav1/UserControl.vue'
-import Page4 from './views/nav2/Page4.vue'
-import Page5 from './views/nav2/Page5.vue'
-import Page6 from './views/nav3/Page6.vue'
-import echarts from './views/charts/echarts.vue'
-
-// 权限管理
 
 
 let routes = [
+    // 公共路由
     {
         path: '/login',
         component: Login,
@@ -27,12 +23,22 @@ let routes = [
         name: '',
         hidden: true
     },
-    //{ path: '/main', component: Main },
+    {
+        path: '/',
+        component: Home,
+        name: '',
+        leaf: true,
+        iconCls: 'el-icon-date',
+        children:[
+            { path: '/data', component: Data, name: '效能分析' }
+        ]
+    },
+    // 需要做权限管理 start ------------------------------------------
     {
         path: '/',
         component: Home,
         name: '用户管理',
-        iconCls: 'el-icon-message',//图标样式class
+        iconCls: 'el-icon-menu',//图标样式class
         children: [
             { path: '/main', component: Main, name: '主页', hidden: true },
             { path: '/table', component: Table, name: '系统用户' },
@@ -44,35 +50,7 @@ let routes = [
             auth: true
         }
     },
-    {
-        path: '/',
-        component: Home,
-        name: '测试页',
-        iconCls: 'fa fa-id-card-o',
-        children: [
-            { path: '/page4', component: Page4, name: '页面4' },
-            { path: '/page5', component: Page5, name: '页面5' }
-        ]
-    },
-    {
-        path: '/',
-        component: Home,
-        name: '',
-        iconCls: 'fa fa-address-card',
-        leaf: true,//只有一个节点
-        children: [
-            { path: '/page6', component: Page6, name: '测试页' }
-        ]
-    },
-    {
-        path: '/',
-        component: Home,
-        name: 'ECHART表格',
-        iconCls: 'fa fa-bar-chart',
-        children: [
-            { path: '/echarts', component: echarts, name: 'echarts' }
-        ]
-    },
+    // 权限管理区域 end -----------------------------------------
     {
         path: '*',
         hidden: true,

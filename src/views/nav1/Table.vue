@@ -9,9 +9,9 @@
 				<el-form-item>
 					<el-button type="primary" v-on:click="getUsers">查询</el-button>
 				</el-form-item>
-				<!--<el-form-item>-->
-					<!--<el-button type="primary" @click="handleAdd">新增</el-button>-->
-				<!--</el-form-item>-->
+				<el-form-item>
+					<el-button type="primary" @click="handleAdd">新增</el-button>
+				</el-form-item>
 			</el-form>
 		</el-col>
 
@@ -59,8 +59,8 @@
 					<el-input v-model="editForm.username" auto-complete="off"></el-input>
 				</el-form-item>
                 <el-form-item label="角色" prop="role.name">
-                    <el-select v-model="editForm.role" placeholder="角色">
-                        <el-option v-for="item in roleOption" :key="item.id" :label="item.label" :value="item.id">
+                    <el-select v-model="editForm.role.id" placeholder="角色">
+                        <el-option v-for="item in roleOption" :key="item.id" :label="item.name" :value="item.id">
                         </el-option>
                     </el-select>
                 </el-form-item>
@@ -96,7 +96,7 @@
 				</el-form-item>
 				<el-form-item label="角色" prop="role">
 					<el-select v-model="addForm.role.id" placeholder="请选择角色" >
-						<el-option v-for="item in roleOption" :key="item.id" :label="item.label" :value="item.id">
+						<el-option v-for="item in roleOption" :key="item.id" :label="item.name" :value="item.id">
 						</el-option>
 					</el-select>
 				</el-form-item>
@@ -129,9 +129,10 @@
 
 <script>
 	import util from '../../common/js/util'
-    import axios from 'axios'
-	//import NProgress from 'nprogress'
-	import { getUserListPage, removeUser, batchRemoveUser, editUser, addUser } from '../../api/api';
+    import axios from 'axios';
+	import qs from 'qs';
+	//import NProgress from 'nprogress';
+	import { getUserListPage, removeUser, batchRemoveUser, editUser, addUser, getUserRoleList } from '../../api/api';
 
 	export default {
 		data() {
@@ -188,7 +189,7 @@
 						{ required: true, message: '请选择角色' }
 					],
 					status: [
-						{ required: true, message: '请选择状态', trigger: 'change' }
+						{ required: true, message: '请选择状态' }
 					]
 				},
 
@@ -208,9 +209,7 @@
                     { id: 1,label: '启用' },
                     { id: 0,label: '停用' }
                 ],
-                roleOption: [
-                    { id: '1',label: 'admin' }
-                ]
+                roleOption: []
 
 			}
 		},
@@ -237,10 +236,10 @@
 				this.listLoading = true;
 				//NProgress.start();
 				getUserListPage(para).then((res) => {
-				    console.log(res);
-					this.total = res.data.data.total;
-					this.users = res.data.data.rows;
-					this.listLoading = false;
+                    // console.log(res.data.data);
+                    this.total = res.data.data.total;
+                    this.users = res.data.data.rows;
+                    this.listLoading = false;
 					//NProgress.done();
 				});
 			},
@@ -252,14 +251,16 @@
 					this.listLoading = true;
 					//NProgress.start();
 					let para = { id: row.id };
+					// console.log(para);
 					removeUser(para).then((res) => {
-						this.listLoading = false;
-						//NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getUsers();
+                        this.listLoading = false;
+                        //NProgress.done();
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getUsers();
+
 					}).catch((err) => {
                         this.listLoading = false;
                         this.$message({
@@ -282,26 +283,31 @@
             },
 			//显示编辑界面
 			handleEdit: function (index, row) {
+                getUserRoleList().then((res)=>{
+                    this.roleOption = res.data.data;
+                });
 				this.editFormVisible = true;
 				this.editForm = Object.assign({}, row);
 			},
 			//显示新增界面
 			handleAdd: function () {
+                getUserRoleList().then((res)=>{
+                    this.roleOption = res.data.data;
+                });
 				this.addFormVisible = true;
 				this.addForm = {
 				    username: '',
 					name: '',
 					role: {
-				        id: '1'
+				        id: 1
 					},
 					sex: 0,
 					telephone: '',
-					status: ''
+					status: 1
 				};
 			},
 			//编辑
 			editSubmit: function () {
-				// console.log(this.editForm);
 				this.$refs.editForm.validate((valid) => {
 					if (valid) {
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
@@ -309,17 +315,19 @@
 							//NProgress.start();
 							let para = Object.assign({}, this.editForm);
 							para.birthday = (!para.birthday || para.birthday == '') ? '' : util.formatDate.format(new Date(para.birthday), 'yyyy-MM-dd');
+							// console.log(JSON.stringify(para));
+
 							editUser(para).then((res) => {
                                 this.editLoading = false;
-								// console.log(res);
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['editForm'].resetFields();
-								this.editFormVisible = false;
-								this.getUsers();
+                                // console.log(res);
+                                //NProgress.done();
+                                this.$message({
+                                    message: '提交成功',
+                                    type: 'success'
+                                });
+                                this.$refs['editForm'].resetFields();
+                                this.editFormVisible = false;
+                                this.getUsers();
 							}).catch(err=>{
 								this.editLoading = false;
 							   	this.$message({
@@ -340,9 +348,8 @@
 							this.addLoading = true;
 							//NProgress.start();
 							let para = Object.assign({}, this.addForm);
-							console.log(para);
 							para.birthday = (!para.birthday || para.birthday == '') ? '' : util.formatDate.format(new Date(para.birthday), 'yyyy-MM-dd');
-							addUser(JSON.stringify(para)).then((res) => {
+							addUser(para).then((res) => {
 								this.addLoading = false;
 								//NProgress.done();
 								this.$message({
@@ -376,6 +383,7 @@
 					this.listLoading = true;
 					//NProgress.start();
 					let para = { ids: ids };
+					// console.log(para);
 					batchRemoveUser(para).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();

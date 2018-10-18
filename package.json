@@ -11,13 +11,16 @@
   },
   "dependencies": {
     "axios": "^0.15.3",
-    "echarts": "^3.3.2",
+    "echarts": "^3.8.5",
     "element-ui": "^1.2.8",
     "font-awesome": "^4.7.0",
+    "moment": "^2.22.2",
     "nprogress": "^0.2.0",
     "qs": "^6.5.2",
+    "socket.io-client": "^2.1.1",
     "vue": "^2.2.2",
     "vue-router": "^2.3.0",
+    "vue-socket.io": "^2.1.1-b",
     "vuex": "^2.0.0-rc.6"
   },
   "devDependencies": {

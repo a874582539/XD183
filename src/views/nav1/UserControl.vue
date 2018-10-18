@@ -1,24 +1,23 @@
 <template>
     <section style="margin-top: 10px">
-        <el-row :gutter="20">
+        <el-row :gutter="24">
             <el-col :span="16">
-                <el-table ref="singleTable" :data="tableData" highlight-current-row @current-change="handleCurrentChange"
-                        style="width: 100%">
+                <el-table ref="singleTable" :data="tableData" highlight-current-row
+                          @current-change="handleCurrentChange" style="width: 100%">
                     <el-table-column type="index" width="50"></el-table-column>
-                    <el-table-column property="name" label="名称" width="120">
-                    </el-table-column>
-                    <el-table-column property="msg" label="说明">
-                    </el-table-column>
+                    <el-table-column property="name" label="名称" width="120"></el-table-column>
+                    <el-table-column property="msg" label="说明"></el-table-column>
                 </el-table>
             </el-col>
             <el-col :span="8">
-                <div class="grid-content bg-purple-light" >
-                    <el-tree :data="data2" show-checkbox default-expand-all node-key="id" ref="tree" highlight-current
-                             :props="defaultProps">
+                <div class="grid-content bg-purple-light">
+                    <el-tree :data="formData" show-checkbox default-expand-all node-key="id" ref="tree"
+                             highlight-current
+                             :props="defaultProps" :default-checked-keys="checked">
                     </el-tree>
                 </div>
                 <div class="save-panel">
-                    <el-button type="primary" size="small">保存</el-button>
+                    <el-button type="primary" size="small" @click="getCheckedNodes">保存</el-button>
                 </div>
             </el-col>
         </el-row>
@@ -26,106 +25,132 @@
 </template>
 
 <script>
+    import axios from 'axios';
+    import {AccessPeople, AccessContent, SaveTag} from '../../api/api';
+
     export default {
         data() {
             return {
-                filters:{
-                  name: ''
+                resourceID: '',
+
+                filters: {
+                    name: ''
                 },
-                props: {
-                    label: 'name',
-                    children: 'zones'
-                },
-                tableData: [{
-                    name: '管理员',
-                    msg: '可管理后台全部人员权限'
-                }, {
-                    name: '南山公安人员',
-                    msg: '仅可查看南山后台数据'
-                }],
+                editLoading: false,
+                tableData: [],
                 currentRow: null,
                 // 第0级用户权限信息
-                data2: [
-                    {
-                        id: 1,
-                        label: '用户管理',
-                        children: [
-                            {
-                                id: 4,
-                                label: '用户管理',
-                            },
-                            {
-                                id: 5,
-                                label: '权限管理',
-                            },
-                        ]
-                    },
-                    {
-                        id: 2,
-                        label: '环境管理',
-                        children: [
-                            {
-                                id: 6,
-                                label: '环境人员信息'
-                            },
-                            {
-                                id: 7,
-                                label: '环境人员报表'
-                            }
-                        ]
-                    },
-                    {
-                        id: 3,
-                        label: '信息管理',
-                        children: [
-                            {
-                                id: 8,
-                                label: '信息管理信息'
-                            },
-                            {
-                                id: 9,
-                                label: '信息管理报表'
-                            }
-                        ]
-                    }
-                ],
                 defaultProps: {
                     children: 'children',
-                    label: 'label'
-                }
+                    label: 'name'
+                },
+                // tree data
+                formData: [],
+                // choose
+                checked: []
             };
         },
+
         methods: {
             // 表单
-            setCurrent(row) {
-                this.$refs.singleTable.setCurrentRow(row);
-            },
             handleCurrentChange(val) {
+                // console.log('岁的法国',val)
+                this.roleID = val.id;
+                let tag = val.id;
                 this.currentRow = val;
+                AccessContent(tag).then(res => {
+
+                    let getJsonTree = res.data;
+                    // children turn to the array
+                    for (let key in getJsonTree) {
+                        getJsonTree[key]['children'] = []
+                    }
+                    let menu = [];
+                    // first level
+                    for (let key in getJsonTree) {
+                        if (getJsonTree[key]['pId'] === null) {
+                            menu.push(getJsonTree[key]);
+                        }
+                    }
+                    // first & second level
+                    for (let key in menu) {
+                        let firstLevelMenuId = menu[key]['id'];
+                        for (var key2 in getJsonTree) {
+                            var pId = getJsonTree[key2]['pId'];
+                            if (firstLevelMenuId == pId) {
+                                menu[key]['children'].push(getJsonTree[key2]);
+                            }
+                        }
+                    }
+
+                    // first & second & third level
+                    for (let key in menu) {
+                        let secondLevelMenu = menu[key]['children'];
+                        for (let key2 in secondLevelMenu) {
+                            let secondLevelMenuId = secondLevelMenu[key2]['id'];
+                            for (let key3 in getJsonTree) {
+                                let pid = getJsonTree[key3]['pId'];
+                                if (secondLevelMenuId == pid) {
+                                    menu[key]['children'][key2]['children'].push(getJsonTree[key3]);
+                                }
+                            }
+                        }
+                    }
+                    // console.log(menu);
+                    this.formData = menu;
+                    let arr = [];
+                    for (let key in getJsonTree) {
+                        if (getJsonTree[key]['checked'] == true) {
+                            arr.push(getJsonTree[key]['id']);
+                        }
+                    }
+                    this.checked = arr;
+                })
             },
-            // tree select
-            setCheckedNodes() {
-                this.$refs.tree.setCheckedNodes([{
-                    id: 5,
-                    label: '二级 2-1'
-                }, {
-                    id: 9,
-                    label: '三级 1-1-1'
-                }]);
-            },
+            getCheckedNodes() {
+                this.$confirm('确认保存吗？','提示',{}).then(()=>{
+                    this.editLoading = true;
+                    let self = this;
+                    let arr = this.$refs.tree.getCheckedNodes().map(x => {
+                        let res = {
+                            roleID: self.roleID,
+                            resourceID: x.id
+                        };
+                        return res;
+                    });
+                    let jsonArr = JSON.stringify(arr);
+                    axios.post('http://www.toncentsoft.cn:8090/security/roleresource/saveBeans.do', jsonArr,
+                        {headers: {'Content-Type': 'application/json;charset=utf-8'}}
+                    ).then(res => {
+                        this.editLoading= false;
+                        this.$message({
+                            message: '保存成功',
+                            type: 'success'
+                        })
+                    }, error => {
+                        this.editLoading= false;
+                        this.$message({
+                            message: '更新失败,请联系系统管理员',
+                            type: 'error'
+                        })
+                    })
+                });
+            }
         },
-        mounted(){
-            console.log(this.editForm)
+        mounted() {
+            AccessPeople().then(res => {
+                this.tableData = res.data.data;
+            });
         }
     };
 </script>
 
 <style scoped lang="scss">
-    .save-panel{
+    .save-panel {
         border: 1px solid #d1dbe5;
         border-top: none;
         padding: 10px;
-        button{
+        button {
             display: block;
             margin: 0 auto;
             min-width: 100px;
