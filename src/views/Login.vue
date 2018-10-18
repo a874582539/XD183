@@ -12,7 +12,7 @@
             <div class="flex-png">
                 <el-input type="text" v-model="ruleForm2.verification" auto-complete="off" placeholder="验证码"
                           class="button"></el-input>
-                <img src="http://10.200.20.27:8085/login/authCode" @click="refreshImg">
+                <img src="http://10.200.10.117:8085/login/authCode" @click="refreshImg">
                 <!--<img src="http://www.toncentsoft.cn:8090/login/authCode" @click="refreshImg">-->
             </div>
         </el-form-item>

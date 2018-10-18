@@ -36,7 +36,9 @@
                 }
                 let currentdate = time.getFullYear() + seperator1 + month + seperator1 + strDate + " "+ time.getHours() + seperator2 + time.getMinutes()+ seperator2 + time.getSeconds();
 
-                return currentdate;
+                // return currentdate;
+                console.log(currentdate);
+
             },
             getBDLine(){
                 getBDLine().then(res=>{

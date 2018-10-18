@@ -8,8 +8,8 @@
             <div><span class="n6"></span><span>正常</span></div>
             </div>
             <div id="circleChart" style="height: 300px;"></div>
-            <div class="timed"><span>最短办证时间:</span><span class="n1"></span><span>48秒</span></div>
-            <div class="timec">最长办证时间:<span class="n2"></span><span>187秒</span></div>
+            <div class="timed"><span>最短办证时间:</span><span class="n1"></span><span>{{ minWaitSeconds }}秒</span></div>
+            <div class="timec">最长办证时间:<span class="n2"></span><span>{{ maxCertificationSeconds }}秒</span></div>
             <v-abnormal></v-abnormal>
         </div>
     </div>
@@ -18,18 +18,32 @@
 <script>
     import abnormals from './abnormal.vue'
     import echarts from 'echarts'
+    import { getBDefficiency } from "../../api/api";
     export default {
         name: "e-circle",
         data(){
             return{
                 title: '大厅时效指数',
-                drawCircles: null
+                drawCircles: null,
+                number: '',
+                maxCertificationSeconds: '',
+                minWaitSeconds: '',
+                timer: null
             }
         },
         components:{
             "v-abnormal":abnormals
         },
         methods:{
+            getBDefficiencys(){
+                getBDefficiency().then(res=>{
+                    this.number = res.data.data.number;
+                    this.maxCertificationSeconds = res.data.data.maxCertificationSeconds;
+                    this.minWaitSeconds = res.data.data.minWaitSeconds;
+                    // console.log(this.number,this.maxCertificationSeconds,this.minWaitSeconds);
+                    this.drawCircle()
+                })
+            },
             drawCircle(){
                 this.drawCircles = echarts.init(document.getElementById('circleChart'));
                 this.drawCircles.setOption({
@@ -65,7 +79,7 @@
                             type: 'gauge',
                             center:['45%', '35%'] ,
                             detail: {formatter: '{value}'},
-                            data: [{value: 50, name: '指数范围0-100'}],
+                            data: [{value: this.number, name: '指数范围0-100'}],
                             axisLine:{
                                 show:false,
                                 lineStyle:{
@@ -89,13 +103,21 @@
             },
             drawCharts(){
                 this.drawCircle()
+            },
+            showIt(){
+                console.log('1');
             }
         },
         mounted(){
-            this.drawCircle()
+            this.getBDefficiencys();
         },
         updated(){
-            this.drawCircle()
+            // this.drawCircle();
+            // this.timer= setInterval(this.showIt,1000)
+        },
+        beforeDestroy(){
+            // clearInterval(this.timer);
+            // this.timer=null
         }
     }
 </script>

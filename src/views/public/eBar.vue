@@ -9,15 +9,42 @@
 
 <script>
     import echarts from 'echarts'
+    import { getBDexit } from "../../api/api";
     export default {
         name: "e-bar",
         data(){
             return{
                 title: '终端受理功能',
                 drawBars: null,
+                checkIDcard: [],
+                checkFingerPrint: [],
+                checkSignName: [],
+                checkCommit: []
             }
         },
         methods:{
+            getBDexits(){
+                getBDexit().then(res=>{
+                    // console.log(res.data.data);
+                    // total: 合计  stepNo3: 刷身份证 stepNo4: 录指纹 stepNo5: 确认签名 stepNo6：提交审核 deviceId: 机器ID
+                    let arr = res.data.data;
+                    let checkIDcard = [];
+                    let checkFingerPrint = [];
+                    let checkSignName = [];
+                    let checkCommit = [];
+                    for(let key in arr){
+                         checkIDcard.push(arr[key]['stepNo3']);
+                         checkFingerPrint.push(arr[key]['stepNo4']);
+                         checkSignName.push(arr[key]['stepNo5']);
+                         checkCommit.push(arr[key]['stepNo6']);
+                    }
+                    this.checkIDcard = checkIDcard;
+                    this.checkFingerPrint = checkFingerPrint;
+                    this.checkSignName = checkFingerPrint;
+                    this.checkCommit = checkCommit;
+                    this.drawCharts();
+                })
+            },
             drawBar(){
                 this.drawBars = echarts.init(document.getElementById('eBar'));
                 this.drawBars.setOption({
@@ -72,7 +99,7 @@
                                     position: ['50%','50%']
                                 }
                             },
-                            data: [320, 302, 301, 334, 390, 330, 320, 301, 334, 390, 330, 320]
+                            data: this.checkIDcard
                         },
                         {
                             name: '采集指纹',
@@ -84,7 +111,7 @@
                                     position: 'insideRight'
                                 }
                             },
-                            data: [120, 132, 101, 134, 90, 230, 210, 301, 334, 390, 330, 320]
+                            data: this.checkFingerPrint
                         },
                         {
                             name: '确认并签名',
@@ -96,7 +123,7 @@
                                     position: 'insideRight'
                                 }
                             },
-                            data: [220, 182, 191, 234, 290, 330, 310, 301, 334, 390, 330, 320]
+                            data: this.checkSignName
                         },
                         {
                             name: '提交民警确认',
@@ -108,7 +135,7 @@
                                     position: 'insideRight'
                                 }
                             },
-                            data: [150, 212, 201, 154, 190, 330, 410, 301, 334, 390, 330, 320]
+                            data: this.checkCommit
                         }
 
 
@@ -121,7 +148,7 @@
             }
         },
         mounted(){
-            this.drawCharts();
+            this.getBDexits();
         },
         updated(){
             this.drawCharts();

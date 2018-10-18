@@ -24,16 +24,15 @@
         methods:{
             getBDCounts(){
                 getBDCount().then(res=>{
-                    console.log(res);
+                    console.log('人员占比',res);
                     this.autoProcess = res.data.data.autoProcess;
                     this.total = res.data.data.total;
                     this.manualProcess = res.data.data.manualProcess;
                     // console.log(this.autoProcess,this.total,this.manualProcess);
+                    this.drawCharts();
                 })
             },
             drawCount(){
-                let _this=this;
-                console.log(_this.manualProcess);
                 this.drawCounts = echarts.init(document.getElementById('drawC'));
                 this.drawCounts.setOption({
                     color:['#2adeff','#ee417a', '#2993ff', '#d48265', '#91c7ae','#749f83', '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
@@ -116,9 +115,9 @@
                                 }
                             },
                             data: [
-                                { value: 4, name: '人工' },
-                                { value: 2, name: '实时'},
-                                { value: 1, name: '自助' }
+                                { value: this.manualProcess, name: '人工' },
+                                { value: this.total, name: '实时'},
+                                { value: this.autoProcess, name: '自助' }
                             ]
                         }
                     ]
@@ -129,7 +128,6 @@
             }
         },
         mounted(){
-            this.drawCharts();
             this.getBDCounts();
         },
         updated(){

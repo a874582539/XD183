@@ -1,9 +1,8 @@
 import axios from 'axios';
 axios.defaults.withCredentials=true;
 let base = '';
-// let api= 'http://192.168.191.1:8085';
 // let api= 'http://www.toncentsoft.cn:8090';
-let api= 'http://10.200.20.27:8085';
+let api= 'http://10.200.10.117:8085';
 
 export const requestLogin = params => {
     return axios.post(
@@ -98,4 +97,12 @@ export const getBDLine = params =>{
 // component 04 今日办证时效
 export const getBDCount = params =>{
     return axios.get(api+`/todayHandleAgingNumber`)
+};
+// component 05 终端受理功能
+export const getBDexit = params =>{
+    return axios.get(api+`/todayDeviceStepCount`)
+};
+// component 06 大厅时效指数
+export const getBDefficiency = params =>{
+    return axios.get(api+`/hallAginIndexInfo`)
 };

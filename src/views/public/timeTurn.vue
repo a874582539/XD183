@@ -19,6 +19,8 @@
 </template>
 
 <script>
+    import SocketJS from 'sockjs-client';
+    import Stomp from 'stompjs';
     export default {
         name: "time-turn",
         data(){
@@ -31,14 +33,71 @@
                         yType: '5',
                         waitTime: '7min'
                     }
-                ]
+                ],
+                stompClient: '',
+                timer: ''
             }
         },
+        mounted(){
+            this.initWebSocket();
+        },
+        beforeDestroy(){
+            // 页面离开时候断开连接,清除定时器
+            this.disconnect();
+            // clearInterval(this.timer);
+        },
         methods:{
-            headerStyle({row,rowIndex}){
-                return 'table-th'
+            // headerStyle({row,rowIndex}){
+            //     return 'table-th'
+            // },
+            initWebSocket(){
+                this.connection();
+                let that =this;
+                // 断开重连机制，尝试发送消息，捕获异常状态发生时重连
+                // this.timer = setInterval(()=>{
+                //     try{
+                //         that.stompClient.send('text');
+                //     }
+                //     catch(err){
+                //         console.log('断线了:',+err);
+                //         that.connection();
+                //     }
+                // },10000)
             },
-        }
+            connection(){
+                // 建立连接对象
+                let socket = new SocketJS('http://10.200.10.117:8085/webSocketServer');
+                // 获取STOMP子协议的客户端对象
+                this.stompClient = Stomp.over(socket);
+                // 定义客户端的验证信息，按需求配置
+                // let headers = {
+                //     Authorization: ''
+                // };
+                // 向服务器发起websocket连接
+                this.stompClient.connect({},()=>{
+                    this.stompClient.subscribe('/topic/deviceStateInfo',(msg)=>{ //订阅服务器端提供的topic
+                        console.log();
+                        console.log('机器状态信息',msg); //msg.body存放的是服务端发送给我们的信息
+                    });
+                    this.stompClient.subscribe('/topic/waitingInfo',(msg)=>{
+                        console.log('大厅排队信息',msg)
+                    })
+                    // this.stompClient.send('/app/chat.addUser',
+                    //     headers,
+                    //     JSON.stringify({sender: '',chatType: 'JSON'})
+                    // ) // 用户加入接口
+                },(err)=>{
+                    // 连接发生错误时候的处理函数
+                    console.log('失败');
+                    console.log(err);
+                });
+            }, //连接后台
+            disconnect(){
+                if(this.stompClient){
+                    this.stompClient.disconnect();
+                }
+            }, //断开连接
+        },
     }
 </script>
 

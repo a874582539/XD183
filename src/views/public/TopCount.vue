@@ -36,7 +36,7 @@
             },
             getBDTopMsg(){
                 getBDTop().then(res=>{
-                    console.log('返回的TOP6大数据',res.data.data);
+                    // console.log('返回的TOP6大数据',res.data.data);
                     this.tableData = res.data.data;
                 })
             }
