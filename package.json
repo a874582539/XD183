@@ -1,8 +1,8 @@
 {
-  "name": "vueadmin",
+  "name": "xd183",
   "version": "1.0.5",
   "description": "vue admin project",
-  "author": "taylor <709161610@qq.com>",
+  "author": "toncentsoft",
   "license": "MIT",
   "scripts": {
     "dev": "node build/dev-server.js",
@@ -22,7 +22,6 @@
     "stompjs": "^2.3.3",
     "vue": "^2.2.2",
     "vue-router": "^2.3.0",
-    "vue-socket.io": "^2.1.1-b",
     "vuex": "^2.0.0-rc.6"
   },
   "devDependencies": {

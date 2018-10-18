@@ -19,8 +19,8 @@
 </template>
 
 <script>
-    import SockJS from  'sockjs-client';
-    import  Stomp from 'stompjs';
+    import SocketJS from 'sockjs-client';
+    import Stomp from 'stompjs';
     export default {
         name: "time-turn",
         data(){
@@ -35,12 +35,36 @@
                         yType: '5',
                         waitTime: '7min'
                     }
-                ]
+                ],
+                stompClient: '',
+                timer: ''
             }
         },
+        mounted(){
+            this.initWebSocket();
+        },
+        beforeDestroy(){
+            // 页面离开时候断开连接,清除定时器
+            this.disconnect();
+            // clearInterval(this.timer);
+        },
         methods:{
-            headerStyle({row,rowIndex}){
-                return 'table-th'
+            // headerStyle({row,rowIndex}){
+            //     return 'table-th'
+            // },
+            initWebSocket(){
+                this.connection();
+                let that =this;
+                // 断开重连机制，尝试发送消息，捕获异常状态发生时重连
+                // this.timer = setInterval(()=>{
+                //     try{
+                //         that.stompClient.send('text');
+                //     }
+                //     catch(err){
+                //         console.log('断线了:',+err);
+                //         that.connection();
+                //     }
+                // },10000)
             },
             initWebSocket() {
             this.connection();
@@ -57,7 +81,7 @@
         },  
         connection() {
             // 建立连接对象
-            let socket = new SockJS('http://10.200.10.117:8085/webSocketServer');
+            let socket = new SocketJS('http://10.200.10.117:8085/webSocketServer');
             // 获取STOMP子协议的客户端对象
             this.stompClient = Stomp.over(socket);
             // 定义客户端的认证信息,按需求配置
@@ -90,11 +114,8 @@
         this.initWebSocket();
     },
     beforeDestroy: function () {
-        // 页面离开时断开连接,清除定时器
-        this.disconnect();
-        clearInterval(this.timer);
+        
     }
-
 
  }
 </script>

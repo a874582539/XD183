@@ -16,18 +16,18 @@
             return{
                 title: '当日人流分析',
                 drawLines: null,
-                data:[],
-                timeChecked: [],
+                // data:[],
+                // timeChecked: [],
                 waiting:[],
                 reservation:[],
                 handleSuccess:[],
                  interval: -1,                
             }
         },
-        created(){
-            this.getBDLine()
-           this.drawLine()
-        },
+        // created(){
+        //     // this.getBDLine()
+        //    this.drawLine()
+        // },
         watch:{
             reservation:{
                 handler(newValue, oldValue){
@@ -50,77 +50,76 @@
 
         },
         methods:{
-            getTime(){
-                // 获取当前时间的方法
-                let time = new Date();
+            // getTime(){
+            //     // 获取当前时间的方法
+            //     let time = new Date();
                 
               
-                let seperator1= '-';
-                let seperator2= ':';
-                let month = time.getMonth() +1;
-                let strDate = time.getDate();
-                if(month>=1 && month<=9){
-                    month = '0'+ month;
-                }
-                if(strDate>=0 && strDate<=9){
-                    strDate = '0'+ strDate;
-                }
-                let currentdate = time.getFullYear() + seperator1 + month + seperator1 + strDate + " "+ time.getHours() + seperator2 + time.getMinutes() + seperator2 + time.getSeconds();
+            //     let seperator1= '-';
+            //     let seperator2= ':';
+            //     let month = time.getMonth() +1;
+            //     let strDate = time.getDate();
+            //     if(month>=1 && month<=9){
+            //         month = '0'+ month;
+            //     }
+            //     if(strDate>=0 && strDate<=9){
+            //         strDate = '0'+ strDate;
+            //     }
+            //     let currentdate = time.getFullYear() + seperator1 + month + seperator1 + strDate + " "+ time.getHours() + seperator2 + time.getMinutes() + seperator2 + time.getSeconds();
                      
-                return currentdate;
-                console.log(currentdate);
+            //     return currentdate;
+            //     console.log(currentdate);
                 
-            },
+            // },
             //获取当前5分钟之前的时间
-             getNowFormatDate() {
-                    var date = new Date();
-                    var seperator1 = "-";
-                    var seperator2 = ":";
-                    //前5分钟时间
-                    var minutes=parseInt("5");  
+            //  getNowFormatDate() {
+            //         var date = new Date();
+            //         var seperator1 = "-";
+            //         var seperator2 = ":";
+            //         //前5分钟时间
+            //         var minutes=parseInt("5");  
 
-                    var  interTimes=minutes*60*1000;
+            //         var  interTimes=minutes*60*1000;
 
-                    var interTimes=parseInt(interTimes);  
-                    date=new   Date(Date.parse(date)-interTimes);
+            //         var interTimes=parseInt(interTimes);  
+            //         date=newDate(Date.parse(date)-interTimes);
                     
-                    var month = date.getMonth() + 1;
-                    var strDate = date.getDate();
-                    var hour = date.getHours();
-                    var minutes = date.getMinutes();
-                    if (month >= 1 && month <= 9) {
-                        month = "0" + month;
-                    }
-                    if (strDate >= 0 && strDate <= 9) {
-                        strDate = "0" + strDate;
-                    }
-                    if (hour >= 0 && hour <= 9) {
-                            hour = "0" + hour;
-                    }
-                    if (minutes >= 0 && minutes <= 9) {
-                            minutes = "0" + minutes;
-                    }
-                    var currentdatefix = date.getFullYear() + seperator1 + month + seperator1 + strDate
-                            + " " + hour + seperator2 + minutes
-                            + seperator2 + date.getSeconds();
-                            console.log(currentdatefix);
+            //         var month = date.getMonth() + 1;
+            //         var strDate = date.getDate();
+            //         var hour = date.getHours();
+            //         var minutes = date.getMinutes();
+            //         if (month >= 1 && month <= 9) {
+            //             month = "0" + month;
+            //         }
+            //         if (strDate >= 0 && strDate <= 9) {
+            //             strDate = "0" + strDate;
+            //         }
+            //         if (hour >= 0 && hour <= 9) {
+            //                 hour = "0" + hour;
+            //         }
+            //         if (minutes >= 0 && minutes <= 9) {
+            //                 minutes = "0" + minutes;
+            //         }
+            //         var currentdatefix = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            //                 + " " + hour + seperator2 + minutes
+            //                 + seperator2 + date.getSeconds();
+            //                 console.log(currentdatefix);
                             
-                    return currentdatefix;
+            //         return currentdatefix;
            
                   
-            },
+            // },
             getBDLine(){
             
               this.interval= setInterval(()=>{
                      const url =`todayHumanFlow/2018-10-12 10:20:45/2018-10-12 10:26:50`
                      this.$axios.get(url).then(res=>{
                        
-                        
                        this.reservation.push(res.data.data.reservation)
                        this.waiting.push(res.data.data.waiting)
                        this.handleSuccess.push(res.data.handleSuccess)
                          
-                            this.drawLines.setOption({
+                        this.drawLines.setOption({
                                  series: [
                           {
                             name: '预约人数',
@@ -149,7 +148,7 @@
                             })
                        
                     })    
-                },1000000)
+                },100000000)
                 
                 
                 
@@ -305,7 +304,7 @@
         },
         mounted(){
             this.drawCharts();
-            
+            this.getBDLine()
         },
         updated(){
             this.drawCharts();

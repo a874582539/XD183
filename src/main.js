@@ -17,8 +17,8 @@ import axios from 'axios'
 
 
 Vue.prototype.$axios =axios
-
 axios.defaults.baseURL = 'http://10.200.10.117:8085/'
+
 
 Vue.use(ElementUI)
 Vue.use(VueRouter)
